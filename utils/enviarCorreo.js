@@ -6,13 +6,17 @@ export async function enviarCorreo(destinatario, archivoPDF) {
     // ===============================
     // CONFIGURAR GMAIL
     // ===============================
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "jhojansilva0302@gmail.com",     // 👉 TU CORREO AQUÍ
-        pass: "scqmwjvztwgtapxq",       // 👉 CONTRASEÑA DE APLICACIÓN AQUÍ
-      },
-    });
+   const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "jhojansilva0302@gmail.com",
+    pass: "scqmwjvztwgtapxq"
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
+
 
     // ===============================
     // ARMAR CORREO
