@@ -1,0 +1,56 @@
+const { PDFDocument, StandardFonts } = require('pdf-lib');
+
+/**
+ * Obtiene los metadatos de un archivo PDF.
+ * @param {string} filePath - Ruta del archivo PDF.
+ * @returns {object} - Objeto con los metadatos del PDF.
+ */
+async function getPDFMetadata(filePath) {
+  try {
+    // Cargar el archivo PDF
+    const pdfBytes = await fs.readFile(filePath);
+
+    // Crear un objeto PDFDocument
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+
+    // Obtener los metadatos del PDF
+    const metadata = pdfDoc.getMetadata();
+
+    return metadata;
+  } catch (error) {
+    console.error('Error al obtener los metadatos del PDF:', error);
+    return null;
+  }
+}
+
+/**
+ * Actualiza los metadatos de un archivo PDF.
+ * @param {string} filePath - Ruta del archivo PDF.
+ * @param {object} updatedMetadata - Objeto con los metadatos actualizados.
+ */
+async function updatePDFMetadata(filePath, updatedMetadata) {
+  try {
+    // Cargar el archivo PDF
+    const pdfBytes = await fs.readFile(filePath);
+
+    // Crear un objeto PDFDocument
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+
+    // Actualizar los metadatos del PDF
+    pdfDoc.setMetadata(updatedMetadata);
+
+    // Guardar el archivo PDF con los metadatos actualizados
+    const updatedPdfBytes = await pdfDoc.save();
+
+    await fs.writeFile(filePath, updatedPdfBytes);
+
+    console.log('Los metadatos del PDF han sido actualizados con éxito.');
+  } catch (error) {
+    console.error('Error al actualizar los metadatos del PDF:', error);
+  }
+}
+
+module.exports = {
+  getPDFMetadata,
+  updatePDFMetadata,
+};

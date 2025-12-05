@@ -1,0 +1,35 @@
+const { PDFDocument, StandardFonts, PageSizes } = require('pdf-lib');
+const crypto = require('crypto');
+const fs = require('fs')
+/**
+ * Encripta un archivo PDF con una contraseña.
+ * @param {string} inputPath - Ruta del archivo PDF de entrada.
+ * @param {string} outputPath - Ruta del archivo PDF de salida encriptado.
+ * @param {string} password - Contraseña para encriptar el PDF.
+ */
+
+function encryptPDF(inputPath, outputPath, password) {
+  return new Promise((resolve, reject) => {
+    try {
+      const cipher = crypto.createCipher('aes-256-cbc', password);
+      const inputStream = fs.createReadStream(inputPath);
+      const outputStream = fs.createWriteStream(outputPath);
+
+      inputStream.pipe(cipher).pipe(outputStream);
+
+      outputStream.on('finish', () => {
+        resolve();
+      });
+
+      outputStream.on('error', (error) => {
+        reject(error);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+module.exports = {
+  encryptPDF,
+};

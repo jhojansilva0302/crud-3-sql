@@ -1,0 +1,44 @@
+const { PDFDocument, PDFImage } = require('pdf-lib');
+const fs = require('fs');
+
+/**
+ * Extrae las imágenes de un archivo PDF y las guarda en la carpeta de destino.
+ * @param {string} filePath - Ruta del archivo PDF.
+ * @param {string} outputDir - Ruta de la carpeta de destino para guardar las imágenes.
+ */
+async function extractImagesFromPDF(filePath, outputDir) {
+  try {
+    // Cargar el archivo PDF
+    const pdfBytes = await fs.readFile(filePath);
+
+    // Crear un objeto PDFDocument
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+
+    // Obtener las imágenes incrustadas en el PDF
+    const embeddedImages = await pdfDoc.getEmbeddedImages();
+
+    // Crear la carpeta de destino si no existe
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    // Guardar las imágenes en la carpeta de destino
+    await Promise.all(
+      embeddedImages.map(async (image, index) => {
+        const imageBytes = image?.image?.bytes;
+        const imageFileName = `${outputDir}/image_${index + 1}.png`;
+
+        await fs.writeFile(imageFileName, imageBytes);
+        console.log(`Imagen ${index + 1} guardada en ${imageFileName}`);
+      })
+    );
+
+    console.log('Extracción de imágenes completada.');
+  } catch (error) {
+    console.error('Error al extraer imágenes del PDF:', error);
+  }
+}
+
+module.exports = {
+  extractImagesFromPDF,
+};

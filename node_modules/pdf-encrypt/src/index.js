@@ -1,0 +1,18 @@
+const { encryptPDF} = require('./lib/pdf-encrypt')
+const { decryptPDF} = require('./lib/pdf-decrypt')
+const { extractImagesFromPDF} = require('./lib/pdf-image-extractor')
+const { getPDFMetadata, updatePDFMetadata} = require('./lib/pdf-metadata')
+const { generateEncryptionKey, checkKeyStrength, convertKeyFormat } = require('./lib/encryptionUtils')
+const { encryptBatch, decryptBatch } = require('./lib/bash')
+module.exports = {
+    encryptPDF,
+    decryptPDF,
+    extractImagesFromPDF,
+    getPDFMetadata,
+    updatePDFMetadata,
+    generateEncryptionKey,
+    checkKeyStrength,
+    convertKeyFormat,
+    encryptBatch,
+    decryptBatch,
+}

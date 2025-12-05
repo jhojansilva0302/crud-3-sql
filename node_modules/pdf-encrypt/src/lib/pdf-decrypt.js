@@ -1,0 +1,35 @@
+const { PDFDocument } = require('pdf-lib');
+const crypto = require('crypto');
+const fs = require('fs')
+/**
+ * Desencripta un archivo PDF utilizando una contraseña.
+ * @param {string} inputPath - Ruta del archivo PDF encriptado de entrada.
+ * @param {string} outputPath - Ruta del archivo PDF desencriptado de salida.
+ * @param {string} password - Contraseña utilizada para desencriptar el PDF.
+ */
+
+function decryptPDF(inputPath, outputPath, password) {
+  return new Promise((resolve, reject) => {
+    try {
+      const decipher = crypto.createDecipher('aes-256-cbc', password);
+      const inputStream = fs.createReadStream(inputPath);
+      const outputStream = fs.createWriteStream(outputPath);
+
+      inputStream.pipe(decipher).pipe(outputStream);
+
+      outputStream.on('finish', () => {
+        resolve();
+      });
+
+      outputStream.on('error', (error) => {
+        reject(error);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+module.exports = {
+  decryptPDF,
+};

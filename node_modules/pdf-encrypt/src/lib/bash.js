@@ -1,0 +1,110 @@
+const fs = require('fs');
+const crypto = require('crypto');
+
+/**
+ * Encripta varios archivos utilizando un algoritmo de cifrado y una clave.
+ * @param {string[]} filepaths - Los paths de los archivos a encriptar.
+ * @param {string} password - La clave de encriptación.
+ * @returns {Promise} Una promesa que se resuelve cuando se ha completado la encriptación de todos los archivos.
+ */
+function encryptBatch(filepaths, password) {
+  const encryptionPromises = filepaths.map(filepath => {
+    return encryptFile(filepath, password);
+  });
+
+  return Promise.all(encryptionPromises);
+}
+
+/**
+ * Encripta un archivo utilizando un algoritmo de cifrado y una clave.
+ * @param {string} filepath - El path del archivo a encriptar.
+ * @param {string} password - La clave de encriptación.
+ * @returns {Promise} Una promesa que se resuelve cuando se ha completado la encriptación del archivo.
+ */
+function encryptFile(filepath, password) {
+  return new Promise((resolve, reject) => {
+    const inputStream = fs.createReadStream(filepath);
+    const outputPath = getOutputPath(filepath);
+    const outputStream = fs.createWriteStream(outputPath);
+
+    const cipher = crypto.createCipher('aes-256-cbc', password);
+
+    inputStream.pipe(cipher).pipe(outputStream);
+
+    outputStream.on('finish', () => {
+      resolve();
+    });
+
+    outputStream.on('error', error => {
+      reject(error);
+    });
+  });
+}
+
+/**
+ * Obtiene el path de salida para el archivo encriptado.
+ * @param {string} filepath - El path del archivo original.
+ * @returns {string} El path de salida para el archivo encriptado.
+ */
+function getOutputPath(filepath) {
+  // Modifica el path de salida según tus necesidades
+  return filepath + '.encrypted';
+}
+const fs = require('fs');
+const crypto = require('crypto');
+
+/**
+ * Desencripta varios archivos utilizando un algoritmo de cifrado y una clave.
+ * @param {string[]} filepaths - Los paths de los archivos a desencriptar.
+ * @param {string} password - La clave de encriptación.
+ * @returns {Promise} Una promesa que se resuelve cuando se ha completado la desencriptación de todos los archivos.
+ */
+function decryptBatch(filepaths, password) {
+  const decryptionPromises = filepaths.map(filepath => {
+    return decryptFile(filepath, password);
+  });
+
+  return Promise.all(decryptionPromises);
+}
+
+/**
+ * Desencripta un archivo utilizando un algoritmo de cifrado y una clave.
+ * @param {string} filepath - El path del archivo a desencriptar.
+ * @param {string} password - La clave de encriptación.
+ * @returns {Promise} Una promesa que se resuelve cuando se ha completado la desencriptación del archivo.
+ */
+function decryptFile(filepath, password) {
+  return new Promise((resolve, reject) => {
+    const inputStream = fs.createReadStream(filepath);
+    const outputPath = getOutputPath(filepath);
+    const outputStream = fs.createWriteStream(outputPath);
+
+    const decipher = crypto.createDecipher('aes-256-cbc', password);
+
+    inputStream.pipe(decipher).pipe(outputStream);
+
+    outputStream.on('finish', () => {
+      resolve();
+    });
+
+    outputStream.on('error', error => {
+      reject(error);
+    });
+  });
+}
+
+/**
+ * Obtiene el path de salida para el archivo desencriptado.
+ * @param {string} filepath - El path del archivo encriptado.
+ * @returns {string} El path de salida para el archivo desencriptado.
+ */
+function getOutputPath(filepath) {
+  // Modifica el path de salida según tus necesidades
+  return filepath.replace('.encrypted', '.decrypted');
+}
+
+
+module.exports = {
+    encryptBatch,
+    decryptBatch,
+}

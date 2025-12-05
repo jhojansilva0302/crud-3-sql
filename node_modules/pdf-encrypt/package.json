@@ -1,0 +1,15 @@
+{
+  "name": "pdf-encrypt",
+  "version": "1.0.1",
+  "description": "El paquete `pdf-encrypt` es una biblioteca para encriptar archivos PDF utilizando cifrado AES. Proporciona funciones sencillas y flexibles para proteger tus archivos PDF con contraseña.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jesus Daniel",
+  "license": "ISC",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "fs": "^0.0.1-security"
+  }
+}

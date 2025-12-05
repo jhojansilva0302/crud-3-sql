@@ -1,0 +1,35 @@
+# pdf-encrypt
+
+[![npm version](https://img.shields.io/npm/v/pdf-encrypt.svg)](https://www.npmjs.com/package/pdf-encrypt)
+
+## Descripción breve
+
+El paquete `pdf-encrypt` es una biblioteca para encriptar archivos PDF utilizando cifrado AES. Proporciona funciones sencillas y flexibles para proteger tus archivos PDF con contraseña.
+
+## Descripción
+
+El paquete `pdf-encrypt` te permite encriptar archivos PDF de forma sencilla y segura. Utiliza el algoritmo de cifrado AES (Advanced Encryption Standard) para garantizar la protección de tus documentos. Con esta biblioteca, puedes agregar una capa adicional de seguridad a tus archivos PDF al establecer una contraseña de encriptación.
+
+El proceso de encriptación es fácil de usar. Simplemente proporciona la ruta del archivo PDF de entrada, la ruta del archivo PDF de salida encriptado y la contraseña deseada. El paquete `pdf-encrypt` se encargará del resto. También tienes la opción de personalizar el proceso de encriptación utilizando opciones adicionales, como el algoritmo de cifrado y los permisos del archivo encriptado.
+
+Características principales:
+
+- Encripta archivos PDF con contraseña.
+- Compatible con cifrado AES de 128 y 256 bits.
+- Fácil de usar y personalizable.
+- Extrae metadata de los pdf
+- Extrae Imagenes de los pdf
+
+## Mejoras
+
+- Nuevo sistena de encriptacion
+- Se le añadieron modulos para crear claves de encriptacion
+- Se le añadieron modulos para encriptar y desencriptar archivos por lotes
+
+## Instalación
+
+Puedes instalar el paquete `pdf-encrypt` utilizando npm:
+
+```bash
+npm install pdf-encrypt
+```

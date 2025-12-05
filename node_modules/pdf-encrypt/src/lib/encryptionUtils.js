@@ -1,0 +1,70 @@
+const crypto = require('crypto');
+
+/**
+ * Genera una clave de encriptación aleatoria.
+ * @returns {string} La clave de encriptación generada.
+ */
+function generateEncryptionKey() {
+  const key = crypto.randomBytes(32);
+  return key.toString('hex');
+}
+
+/**
+ * Verifica la fortaleza de una clave.
+ * @param {string} key - La clave a verificar.
+ * @returns {boolean} true si la clave es lo suficientemente fuerte, de lo contrario, false.
+ */
+function checkKeyStrength(key) {
+  // Verificar la longitud mínima de la clave
+  if (key.length < 8) {
+    return false;
+  }
+
+  // Verificar si la clave contiene caracteres especiales
+  const specialChars = /[!@#$%^&*(),.?":{}|<>]/;
+  if (!specialChars.test(key)) {
+    return false;
+  }
+
+  // Verificar si la clave contiene al menos un número
+  const numbers = /[0-9]/;
+  if (!numbers.test(key)) {
+    return false;
+  }
+
+  // Verificar si la clave contiene al menos una letra mayúscula
+  const uppercaseLetters = /[A-Z]/;
+  if (!uppercaseLetters.test(key)) {
+    return false;
+  }
+
+  // Verificar si la clave contiene al menos una letra minúscula
+  const lowercaseLetters = /[a-z]/;
+  if (!lowercaseLetters.test(key)) {
+    return false;
+  }
+
+  return true;
+}
+/**
+ * Convierte una clave de encriptación de un formato a otro.
+ * @param {string} key - La clave de encriptación a convertir.
+ * @param {string} currentFormat - El formato actual de la clave (por ejemplo, 'hex', 'base64').
+ * @param {string} targetFormat - El formato objetivo de la clave (por ejemplo, 'hex', 'base64').
+ * @returns {string} La clave de encriptación convertida al formato objetivo.
+ */
+function convertKeyFormat(key, currentFormat, targetFormat) {
+    // Decodificar la clave desde el formato actual
+    const decodedKey = Buffer.from(key, currentFormat);
+  
+    // Codificar la clave en el formato objetivo
+    const convertedKey = decodedKey.toString(targetFormat);
+  
+    return convertedKey;
+  }
+
+module.exports = {
+  generateEncryptionKey,
+  checkKeyStrength,
+  convertKeyFormat,
+};
