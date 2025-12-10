@@ -4,6 +4,9 @@ import { pool } from "./db.js";
 import { generarPDF } from "./utils/generarPDF.js";
 import { enviarCorreo } from "./utils/enviarCorreo.js";
 import path from "path";
+import { obtenerMapa } from "./utils/obtenerMapa.js";
+import { enviarGeo } from "./utils/enviarGeo.js";
+
 
 const app = express();
 
@@ -12,7 +15,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // ===============================
-// 📌 LISTAR
+//  LISTAR
 // ===============================
 app.get("/listar", async (req, res) => {
     const result = await pool.query("SELECT * FROM productos ORDER BY id ASC");
@@ -20,7 +23,7 @@ app.get("/listar", async (req, res) => {
 });
 
 // ===============================
-// 📌 AGREGAR
+//  AGREGAR
 // ===============================
 app.post("/agregar", async (req, res) => {
     const { nombre, precio } = req.body;
@@ -34,7 +37,7 @@ app.post("/agregar", async (req, res) => {
 });
 
 // ===============================
-// 📌 OBTENER POR ID
+//  OBTENER POR ID
 // ===============================
 app.get("/editar/:id", async (req, res) => {
     const id = req.params.id;
@@ -52,7 +55,7 @@ app.get("/editar/:id", async (req, res) => {
 });
 
 // ===============================
-// 📌 EDITAR
+//  EDITAR
 // ===============================
 app.put("/editar/:id", async (req, res) => {
     const id = req.params.id;
@@ -67,8 +70,8 @@ app.put("/editar/:id", async (req, res) => {
 });
 
 // ===============================
-// 📌 BORRAR
-// ===============================
+//  BORRAR
+// ==============================
 app.delete("/borrar/:id", async (req, res) => {
     const id = req.params.id;
 
@@ -77,12 +80,11 @@ app.delete("/borrar/:id", async (req, res) => {
     res.json({ mensaje: "Producto eliminado" });
 });
 // ===============================
-// 📩 GENERAR PDF + ENVIAR AL CORREO
+//  GENERAR PDF + ENVIAR AL CORREO
 // ===============================
 app.get("/enviar-reporte", async (req, res) => {
     try {
         const correo = req.query.correo;
-        const clave = req.query.clave || "12345678"; // contraseña PDF
 
         if (!correo) {
             return res.status(400).json({ error: "Falta el correo: ?correo=correo@gmail.com" });
@@ -92,16 +94,17 @@ app.get("/enviar-reporte", async (req, res) => {
         const result = await pool.query("SELECT * FROM productos ORDER BY id ASC");
         const productos = result.rows;
 
-        // Generar PDF cifrado
-        const archivo = await generarPDF(productos, clave);
-        const rutaPDF = path.join("public", archivo);
+        // Generar PDF cifrado y obtener nombre de archivo y contraseña
+        const { nombreArchivo, password } = await generarPDF(productos);
+        const rutaPDF = path.join("public", nombreArchivo);
 
-        // 🚀 Usar función correcta
-        await enviarCorreo(correo, rutaPDF);
+        // Enviar correo incluyendo la contraseña en el mensaje
+        await enviarCorreo(correo, rutaPDF, password);
 
+        // Responder al frontend con mensaje y contraseña
         res.json({
-            mensaje: "PDF generado, cifrado y enviado al correo",
-            password: clave
+            mensaje: `PDF generado, cifrado y enviado al correo.`,
+            password: password
         });
 
     } catch (error) {
@@ -111,9 +114,97 @@ app.get("/enviar-reporte", async (req, res) => {
 });
 
 
+import TelegramBot from "node-telegram-bot-api";
+
+const TELEGRAM_TOKEN = "8558510927:AAG8lr_x_Y3NqtMgVA4cIf0ppXgYmdxO7mQ";
+
+const bot = new TelegramBot(TELEGRAM_TOKEN, {
+    polling: {
+        interval: 300,
+        timeout: 60,
+        autoStart: true
+    }
+});
+
+// Evitar caída del servidor por ECONNRESET
+bot.on("polling_error", (err) => {
+    console.log("Polling error:", err.message);
+});
+
+// Mensajes
+bot.on("message", async (msg) => {
+    const chatId = msg.chat.id;
+    const texto = msg.text?.toLowerCase() || "";
+
+    console.log("Mensaje recibido:", texto);
+
+    if (texto === "/start") {
+        return bot.sendMessage(
+            chatId,
+            "¡Hola! Soy el bot del CRUD  \n\nComandos:\n" +
+            "/listar - Ver productos\n" +
+            "/info - Información del bot"
+        );
+    }
+
+    if (texto === "/info") {
+        return bot.sendMessage(chatId, "Soy un bot conectado al CRUD con PostgreSQL.");
+    }
+
+    if (texto === "/listar") {
+        const result = await pool.query("SELECT * FROM productos ORDER BY id ASC");
+
+        if (result.rows.length === 0) {
+            return bot.sendMessage(chatId, "No hay productos aún");
+        }
+
+        let respuesta = "*Lista de productos:*\n\n";
+        result.rows.forEach(p => {
+            respuesta += `• *${p.nombre}* — $${p.precio}\n`;
+        });
+
+        return bot.sendMessage(chatId, respuesta, { parse_mode: "Markdown" });
+    }
+
+
+
+    bot.sendMessage(chatId, "No entendí el comando. Escribe /start");
+});
+
+
 
 // ===============================
-// 🚀 INICIAR SERVIDOR
+//  ENVIAR GEOLOCALIZACIÓN + IMAGEN DEL MAPA
+// ===============================
+app.get("/enviar-geo", async (req, res) => {
+    const { correo, lat, lon, nombre } = req.query;
+
+    if (!correo || !lat || !lon) {
+        return res.status(400).json({
+            error: "Faltan datos: /enviar-geo?correo=x@gmail.com&lat=4.6&lon=-74.2&nombre=casa"
+        });
+    }
+
+    try {
+        //  Obtener imagen del mapa
+        const mapa = await obtenerMapa(lat, lon);
+
+        //  Enviar correo con el mapa y la info
+        await enviarGeo(correo, lat, lon, nombre, mapa);
+
+        res.json({
+            mensaje: "Geolocalización enviada con imagen del mapa",
+            maps_url: `https://www.google.com/maps?q=${lat},${lon}`
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Error enviando geolocalización" });
+    }
+});
+
+// ===============================
+//  INICIAR SERVIDOR
 // ===============================
 app.listen(3000, () =>
     console.log("Servidor Express corriendo en http://localhost:3000")

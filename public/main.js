@@ -30,15 +30,14 @@ async function borrar(id) {
 cargar();
 document.getElementById("btnEnviarPDF").addEventListener("click", async () => {
     const correo = document.getElementById("correoDestino").value;
-    const clave = document.getElementById("clavePDF").value || "12345678";
 
     if (!correo) {
         alert("Escribe un correo válido.");
         return;
     }
 
-    const res = await fetch(`/enviar-reporte?correo=${correo}&clave=${clave}`);
-
+    // Llamamos al endpoint que genera el PDF y lo envía
+    const res = await fetch(`/enviar-reporte?correo=${correo}`);
     const data = await res.json();
 
     const msg = document.getElementById("mensajeEnvio");
@@ -46,6 +45,48 @@ document.getElementById("btnEnviarPDF").addEventListener("click", async () => {
     if (data.error) {
         msg.innerHTML = `<span class="text-danger">❌ Error: ${data.error}</span>`;
     } else {
-        msg.innerHTML = `<span class="text-success">✔ PDF enviado correctamente al correo ${correo}</span>`;
+        // Mostrar mensaje con la contraseña
+        msg.innerHTML = `
+            <span class="text-success">✔ PDF enviado correctamente al correo ${correo}</span><br>
+            <span class="fw-bold">Su contraseña es: ${data.password}</span>
+        `;
     }
 });
+
+
+// ===============================
+// 📍 ENVIAR UBICACIÓN POR CORREO
+// ===============================
+document.getElementById("btnEnviarUbicacion").addEventListener("click", async () => {
+    const correo = prompt("📧 Ingresa el correo al que quieres enviar la ubicación:");
+    if (!correo) return;
+
+    if (!navigator.geolocation) {
+        alert("El navegador no soporta geolocalización");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+
+        const nombre = prompt(" Nombre de la ubicación (ej: Mi Casa)") || "Ubicación enviada";
+
+        const url = `http://localhost:3000/enviar-geo?correo=${correo}&lat=${lat}&lon=${lon}&nombre=${nombre}`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        alert(data.mensaje || "Ubicación enviada");
+    });
+});
+
+
+// ===============================
+//  ABRIR CHAT DEL BOT DE TELEGRAM
+// ===============================
+document.getElementById("btnAbrirTelegram").addEventListener("click", () => {
+    // usuario de bot
+    window.open("http://t.me/serverstivenbot", "_blank");
+});
+

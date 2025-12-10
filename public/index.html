@@ -30,13 +30,26 @@
 
 <input type="email" id="correoDestino" placeholder="Correo destino" class="form-control mb-2">
 
-<input type="password" id="clavePDF" placeholder="Contraseña del PDF (1-8)" class="form-control mb-2">
-
 <button id="btnEnviarPDF" class="btn btn-danger">
     Enviar PDF al correo
 </button>
 
 <div id="mensajeEnvio" class="mt-3"></div>
+
+<div class="mt-4 d-flex gap-3">
+
+    <!-- Botón para enviar ubicación -->
+    <button id="btnEnviarUbicacion" class="btn btn-warning">
+         Enviar ubicación
+    </button>
+
+    <!-- Botón para abrir el chatbot de Telegram -->
+    <button id="btnAbrirTelegram" class="btn btn-info">
+         Abrir ChatBot Telegram
+    </button>
+
+</div>
+
 
 
     <script src="main.js"></script>

@@ -1,22 +1,21 @@
 import nodemailer from "nodemailer";
 import fs from "fs";
 
-export async function enviarCorreo(destinatario, archivoPDF) {
+export async function enviarCorreo(destinatario, archivoPDF, password) {
   try {
     // ===============================
     // CONFIGURAR GMAIL
     // ===============================
-   const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "jhojansilva0302@gmail.com",
-    pass: "scqmwjvztwgtapxq"
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
-
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "jhojansilva0302@gmail.com",
+        pass: "scqmwjvztwgtapxq" // tu contraseña de app
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
 
     // ===============================
     // ARMAR CORREO
@@ -25,7 +24,7 @@ export async function enviarCorreo(destinatario, archivoPDF) {
       from: '"Sistema CRUD" <jhojansilva0302@gmail.com>',
       to: destinatario,
       subject: "Reporte PDF - Sistema CRUD con PostgreSQL",
-      text: "Hola, aquí tienes el reporte en PDF generado desde el sistema.",
+      text: `Hola, aquí tienes el reporte en PDF generado desde el sistema.\n\nSu contraseña es: ${password}`,
       
       attachments: [
         {
@@ -41,7 +40,7 @@ export async function enviarCorreo(destinatario, archivoPDF) {
     // ===============================
     await transporter.sendMail(mailOptions);
 
-    console.log("Correo enviado correctamente");
+    console.log("Correo enviado correctamente a:", destinatario);
     return true;
 
   } catch (error) {
